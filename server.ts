@@ -499,7 +499,9 @@ async function startServer() {
     // Servir build de producción
     const distPath = path.join(__dirname, 'dist');
     app.use(express.static(distPath));
-    app.get("/*", (req, res) => {
+
+    // Add this line to handle SPA routing
+    app.use((req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
