@@ -138,7 +138,7 @@ async function startServer() {
   app.get('/api/clients/next-code', (req, res) => {
     try {
       const allClients = db.prepare("SELECT code FROM clients WHERE code LIKE '%B'").all() as { code: string }[];
-      
+
       const usedNumbers = allClients
         .map(c => {
           const match = c.code.match(/^(\d+)B$/);
@@ -185,7 +185,7 @@ async function startServer() {
     console.log('Received client registration request:', client);
     try {
       const isImported = client.is_imported ? 1 : 0;
-      
+
       const stmt = db.prepare(`
         INSERT INTO clients (id, code, full_name, email, phone, membership_type, classification, price, total_classes, start_date, end_date, payment_method, amount_paid, observations, created_at, updated_at, is_imported)
         VALUES (@id, @code, @full_name, @email, @phone, @membership_type, @classification, @price, @total_classes, @start_date, @end_date, @payment_method, @amount_paid, @observations, @created_at, @updated_at, @is_imported)
@@ -194,20 +194,20 @@ async function startServer() {
 
       // Record initial payment
       if (client.amount_paid > 0) {
-          const paymentStmt = db.prepare(`
+        const paymentStmt = db.prepare(`
             INSERT INTO payments (id, client_id, amount, method, date, user_id, user_name, type, is_imported)
             VALUES (@paymentId, @clientId, @amount, @method, @date, @userId, @userName, 'Initial', @isImported)
           `);
-          paymentStmt.run({
-            paymentId: uuidv4(),
-            clientId: client.id,
-            amount: client.amount_paid,
-            method: client.payment_method,
-            date: client.created_at,
-            userId: client.created_by_id || 0, // Ensure not undefined
-            userName: client.created_by_name || 'System',
-            isImported: isImported
-          });
+        paymentStmt.run({
+          paymentId: uuidv4(),
+          clientId: client.id,
+          amount: client.amount_paid,
+          method: client.payment_method,
+          date: client.created_at,
+          userId: client.created_by_id || 0, // Ensure not undefined
+          userName: client.created_by_name || 'System',
+          isImported: isImported
+        });
       }
 
       console.log('Client registered successfully:', client.id);
@@ -221,21 +221,21 @@ async function startServer() {
   app.post('/api/clients/:id/renew', (req, res) => {
     const { id } = req.params;
     const { membership_type, classification, price, total_classes, start_date, end_date, payment_method, amount_paid, observations, action_user } = req.body;
-    
+
     try {
       // Get current client to check debt
       const currentClient = db.prepare('SELECT price, amount_paid, total_classes FROM clients WHERE id = ?').get(id) as any;
       const currentDebt = currentClient.price - currentClient.amount_paid;
-      
+
       // Update client with new membership cycle
       // We do not sum old classes with new classes
       const newTotalClasses = total_classes;
-      
+
       let finalObservations = observations || '';
       if (currentDebt > 0) {
         finalObservations = `[Deuda anterior pendiente: S/ ${currentDebt}] ${finalObservations}`.trim();
       }
-      
+
       const stmt = db.prepare(`
         UPDATE clients 
         SET membership_type = ?, classification = ?, price = ?, total_classes = ?, start_date = ?, end_date = ?, payment_method = ?, amount_paid = ?, observations = ?, updated_at = ?
@@ -270,11 +270,11 @@ async function startServer() {
   app.put('/api/clients/:id', (req, res) => {
     const { id } = req.params;
     const { action_user, extra_days, extra_classes, ...updates } = req.body;
-    
+
     // Dynamic update
     const keys = Object.keys(updates).filter(k => k !== 'id');
     const setClause = keys.map(k => `${k} = @${k}`).join(', ');
-    
+
     try {
       // Get old client data to compare
       const oldClient = db.prepare('SELECT full_name, phone, email FROM clients WHERE id = ?').get(id) as any;
@@ -284,9 +284,9 @@ async function startServer() {
 
       // Log action
       const client = db.prepare('SELECT full_name FROM clients WHERE id = ?').get(id) as { full_name: string };
-      
+
       const descriptionParts = [];
-      
+
       if (
         updates.full_name !== oldClient.full_name ||
         updates.phone !== oldClient.phone ||
@@ -294,7 +294,7 @@ async function startServer() {
       ) {
         descriptionParts.push('Actualización de datos');
       }
-      
+
       if (extra_days) {
         descriptionParts.push(`Extensión de ${extra_days} días (Congelamiento)`);
       }
@@ -324,32 +324,32 @@ async function startServer() {
       res.status(500).json({ success: false, message: error.message });
     }
   });
-  
+
   app.delete('/api/clients/mass', (req, res) => {
-      try {
-          db.prepare("DELETE FROM attendance").run();
-          db.prepare("DELETE FROM payments").run();
-          db.prepare("DELETE FROM freezes").run();
-          db.prepare("DELETE FROM action_history").run();
-          db.prepare("DELETE FROM clients").run();
-          res.json({ success: true });
-      } catch (error: any) {
-          res.status(500).json({ success: false, message: error.message });
-      }
+    try {
+      db.prepare("DELETE FROM attendance").run();
+      db.prepare("DELETE FROM payments").run();
+      db.prepare("DELETE FROM freezes").run();
+      db.prepare("DELETE FROM action_history").run();
+      db.prepare("DELETE FROM clients").run();
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
   });
 
   app.delete('/api/clients/:id', (req, res) => {
-      const { id } = req.params;
-      try {
-          db.prepare("DELETE FROM attendance WHERE client_id = ?").run(id);
-          db.prepare("DELETE FROM payments WHERE client_id = ?").run(id);
-          db.prepare("DELETE FROM freezes WHERE client_id = ?").run(id);
-          db.prepare("DELETE FROM action_history WHERE client_id = ?").run(id);
-          db.prepare("DELETE FROM clients WHERE id = ?").run(id);
-          res.json({ success: true });
-      } catch (error: any) {
-          res.status(500).json({ success: false, message: error.message });
-      }
+    const { id } = req.params;
+    try {
+      db.prepare("DELETE FROM attendance WHERE client_id = ?").run(id);
+      db.prepare("DELETE FROM payments WHERE client_id = ?").run(id);
+      db.prepare("DELETE FROM freezes WHERE client_id = ?").run(id);
+      db.prepare("DELETE FROM action_history WHERE client_id = ?").run(id);
+      db.prepare("DELETE FROM clients WHERE id = ?").run(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
   });
 
   // Payments
@@ -367,10 +367,10 @@ async function startServer() {
         VALUES (@id, @client_id, @amount, @method, @date, @user_id, @user_name, @type, @is_imported)
       `);
       stmt.run({ ...payment, is_imported: isImported });
-      
+
       // Update client amount_paid
       db.prepare('UPDATE clients SET amount_paid = amount_paid + ? WHERE id = ?').run(payment.amount, payment.client_id);
-      
+
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -393,7 +393,7 @@ async function startServer() {
       res.status(500).json({ success: false, message: error.message });
     }
   });
-  
+
   app.get('/api/action-history', (req, res) => {
     try {
       const history = db.prepare('SELECT * FROM action_history ORDER BY date DESC LIMIT 100').all();
@@ -405,66 +405,66 @@ async function startServer() {
 
   // Dashboard / Stats
   app.get('/api/stats/consolidated', (req, res) => {
-      const { filter } = req.query; // 'all', 'day', 'month', 'quarter', 'year'
-      
-      let dateFilter = '';
-      const now = new Date();
-      let params: string[] = [];
-      
-      if (filter === 'day') {
-          dateFilter = "AND date(date) = date(?)";
-          params.push(now.toISOString());
-      } else if (filter === 'month') {
-          dateFilter = "AND strftime('%Y-%m', date) = strftime('%Y-%m', ?)";
-          params.push(now.toISOString());
-      } else if (filter === 'quarter') {
-          const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-          dateFilter = "AND date(date) >= date(?)";
-          params.push(quarterStart.toISOString());
-      } else if (filter === 'year') {
-          dateFilter = "AND strftime('%Y', date) = strftime('%Y', ?)";
-          params.push(now.toISOString());
-      }
+    const { filter } = req.query; // 'all', 'day', 'month', 'quarter', 'year'
 
-      // We need to gather data from action_history (for renewals) and clients (for new creations)
-      // to build a consolidated list of "membership events"
-      
-      // 1. New clients
-      const newClientsQuery = `
+    let dateFilter = '';
+    const now = new Date();
+    let params: string[] = [];
+
+    if (filter === 'day') {
+      dateFilter = "AND date(date) = date(?)";
+      params.push(now.toISOString());
+    } else if (filter === 'month') {
+      dateFilter = "AND strftime('%Y-%m', date) = strftime('%Y-%m', ?)";
+      params.push(now.toISOString());
+    } else if (filter === 'quarter') {
+      const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+      dateFilter = "AND date(date) >= date(?)";
+      params.push(quarterStart.toISOString());
+    } else if (filter === 'year') {
+      dateFilter = "AND strftime('%Y', date) = strftime('%Y', ?)";
+      params.push(now.toISOString());
+    }
+
+    // We need to gather data from action_history (for renewals) and clients (for new creations)
+    // to build a consolidated list of "membership events"
+
+    // 1. New clients
+    const newClientsQuery = `
           SELECT id, membership_type, classification, payment_method, amount_paid, price, created_at as event_date, 'New' as event_type
           FROM clients
           WHERE status != 'Deleted' AND is_imported = 0
           ${dateFilter.replace(/date/g, 'created_at')}
       `;
-      
-      // 2. Renewals
-      // For renewals, we can get the membership info from the action_history description or just use the current client info if we assume it hasn't changed since the renewal.
-      // A better way is to join action_history with clients, but we only want the payment amount for that specific renewal.
-      // Actually, payments table has 'Renewal' type. We can use payments table to get the amount_paid and payment_method for renewals.
-      // And join with clients to get membership_type and classification.
-      const renewalsQuery = `
+
+    // 2. Renewals
+    // For renewals, we can get the membership info from the action_history description or just use the current client info if we assume it hasn't changed since the renewal.
+    // A better way is to join action_history with clients, but we only want the payment amount for that specific renewal.
+    // Actually, payments table has 'Renewal' type. We can use payments table to get the amount_paid and payment_method for renewals.
+    // And join with clients to get membership_type and classification.
+    const renewalsQuery = `
           SELECT c.id, c.membership_type, c.classification, p.method as payment_method, p.amount as amount_paid, c.price, p.date as event_date, 'Renewal' as event_type
           FROM payments p
           JOIN clients c ON p.client_id = c.id
           WHERE p.type = 'Renewal' AND p.is_imported = 0
           ${dateFilter.replace(/date/g, 'p.date')}
       `;
-      
-      const allEvents = db.prepare(`
+
+    const allEvents = db.prepare(`
           ${newClientsQuery}
           UNION ALL
           ${renewalsQuery}
       `).all(...params, ...params);
-      
-      res.json(allEvents);
+
+    res.json(allEvents);
   });
 
   app.get('/api/stats/daily', (req, res) => {
-      const { date } = req.query; // Expects YYYY-MM-DD
-      
-      // New memberships today (includes newly created clients AND renewals)
-      // For renewals, we look at the action_history table for 'Renovación' actions today
-      const newMemberships = db.prepare(`
+    const { date } = req.query; // Expects YYYY-MM-DD
+
+    // New memberships today (includes newly created clients AND renewals)
+    // For renewals, we look at the action_history table for 'Renovación' actions today
+    const newMemberships = db.prepare(`
           SELECT c.* 
           FROM clients c
           WHERE (date(c.created_at) = date(?) OR EXISTS (
@@ -473,19 +473,19 @@ async function startServer() {
           ))
           AND c.status != 'Deleted' AND c.is_imported = 0
       `).all(date, date);
-      
-      // New payments today (excluding initial payments and renewals)
-      const newPayments = db.prepare(`
+
+    // New payments today (excluding initial payments and renewals)
+    const newPayments = db.prepare(`
           SELECT p.*, c.full_name, c.code 
           FROM payments p 
           JOIN clients c ON p.client_id = c.id
           WHERE date(p.date) = date(?) AND p.type NOT IN ('Initial', 'Renewal') AND p.is_imported = 0
       `).all(date);
-      
-      res.json({
-          newMemberships,
-          newPayments
-      });
+
+    res.json({
+      newMemberships,
+      newPayments
+    });
   });
 
   // Vite middleware
@@ -499,10 +499,10 @@ async function startServer() {
     // Servir build de producción
     const distPath = path.join(__dirname, 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get("/*", (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
-  } 
+  }
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
