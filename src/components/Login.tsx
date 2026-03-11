@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { motion } from 'motion/react';
-import { Lock, User, Sun, Moon } from 'lucide-react';
+import { User, Sun, Moon } from 'lucide-react';
 
 export default function Login() {
   const [pin, setPin] = useState('');
@@ -39,17 +39,30 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-4">
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-4 relative overflow-hidden"
+    >
+      {/* Background with Blur Effect */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{ backgroundImage: `url('/assets/banner_master.png')` }}
+      ></div>
+      <div className="absolute inset-0 z-0 bg-zinc-900/60 backdrop-blur-md"></div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="group w-full max-w-sm bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-300 hover:border-amber-300 hover:shadow-[0_0_30px_rgba(252,211,77,0.3)]"
+        className="group relative z-10 w-full max-w-sm bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-300 hover:border-amber-500 hover:shadow-[0_0_50px_rgba(251,191,36,0.5)]"
       >
         <div className="p-8 text-center">
-          <div className="w-30 h-30 bg-amber-300 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-amber-300/20">
-            <Lock className="w-12 h-12 text-zinc-900" />
+          <div className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center p-1 border-2 border-transparent transition-all duration-300 group-hover:border-amber-500 group-hover:shadow-[0_0_25px_rgba(251,191,36,0.6)] overflow-hidden bg-zinc-900">
+            <img 
+              src="/assets/DFIT_LOGO.jpeg" 
+              alt="DFIT Logo" 
+              className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-110"
+            />
           </div>
-          <h1 className="text-3xl font-bold mb-2 text-white group-hover:text-amber-300 transition-colors duration-300">DFIT</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white group-hover:text-amber-500 transition-colors duration-300">DFIT</h1>
           <p className="text-zinc-400 mb-8">Sistema de Gestión Integral</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -82,7 +95,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full h-14 rounded-xl bg-gradient-to-r from-amber-300 to-amber-100 hover:from-amber-200 hover:to-amber-50 text-zinc-900 transition-all duration-300 font-bold text-lg shadow-lg shadow-amber-300/20 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(252,211,77,0.6)] flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-xl bg-gradient-to-r from-amber-500 to-amber-300 hover:from-amber-400 hover:to-amber-200 text-zinc-900 transition-all duration-300 font-bold text-lg shadow-lg shadow-amber-500/20 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(251,191,36,0.6)] flex items-center justify-center gap-2"
             >
               <User className="w-5 h-5" />
               Iniciar Sesión

@@ -618,11 +618,14 @@ export default function AdminPanel() {
       {/* Custom Confirm Dialog */}
       {confirmDialog && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 rounded-2xl backdrop-blur-sm p-4">
-          <div className={`bg-white dark:bg-zinc-800 p-6 rounded-xl max-w-sm w-full mx-4 border ${
+          <div className={`bg-white dark:bg-zinc-800 p-6 rounded-xl max-w-sm w-full mx-4 border text-center ${
             confirmDialog.type === 'danger' ? 'border-2 border-red-600 shadow-[0_0_30px_rgba(220,38,38,0.5)]' :
             confirmDialog.type === 'warning' ? 'border-2 border-amber-600 shadow-[0_0_30px_rgba(217,119,6,0.5)]' :
             'border-zinc-200 dark:border-zinc-700 shadow-2xl'
           }`}>
+             <div className="w-16 h-16 rounded-full mx-auto mb-4 border-2 border-amber-500 p-1 flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.3)] bg-zinc-900 overflow-hidden">
+                <img src="/assets/DFIT_LOGO.jpeg" alt="DFIT Logo" className="w-full h-full object-cover rounded-full" />
+            </div>
             <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{confirmDialog.title}</h3>
             <p className="text-zinc-600 dark:text-zinc-300 mb-6 whitespace-pre-wrap">{confirmDialog.message}</p>
             
@@ -639,7 +642,7 @@ export default function AdminPanel() {
               </div>
             )}
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-center gap-3">
               {!confirmDialog.isAlert && (
                 <button
                   type="button"

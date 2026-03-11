@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { 
   Users, 
@@ -11,8 +11,7 @@ import {
   Menu, 
   X,
   Sun,
-  Moon,
-  Dumbbell
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx } from 'clsx';
@@ -66,7 +65,9 @@ export default function Layout({ children, activeModule, setActiveModule }: Layo
       {/* Mobile Header */}
       <div className="lg:hidden flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-900 text-white">
         <div className="flex items-center gap-2">
-          <Dumbbell className="w-6 h-6 text-amber-500" />
+          <div className="w-8 h-8 rounded-md overflow-hidden bg-zinc-900 border border-amber-500/30">
+            <img src="/assets/DFIT_LOGO.jpeg" alt="DFIT Logo" className="w-full h-full object-cover" />
+          </div>
           <span className="font-bold text-lg">DFIT</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
@@ -89,8 +90,8 @@ export default function Layout({ children, activeModule, setActiveModule }: Layo
             >
               <div className="p-6 flex items-center justify-between border-b border-zinc-800/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <Dumbbell className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden p-[2px]">
+                    <img src="/assets/DFIT_LOGO.jpeg" alt="DFIT Logo" className="w-full h-full object-cover rounded-md" />
                   </div>
                   <div>
                     <h1 className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white">DFIT</h1>
