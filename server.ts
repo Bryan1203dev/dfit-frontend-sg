@@ -495,7 +495,14 @@ async function startServer() {
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  }
+  } else {
+    // Servir build de producción
+    const distPath = path.join(__dirname, 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } 
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
