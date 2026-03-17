@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { motion } from 'motion/react';
 import { User, Sun, Moon } from 'lucide-react';
