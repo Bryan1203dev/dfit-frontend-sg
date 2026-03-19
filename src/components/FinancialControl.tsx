@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/auth';
 import { Download } from 'lucide-react';
 import { getCurrentPeruISODate, formatPeruDate } from '@/lib/time';
 import * as XLSX from 'xlsx';
+import { storage } from '@/lib/storage';
 
 export default function FinancialControl() {
   const { user } = useAuthStore();
@@ -13,10 +14,9 @@ export default function FinancialControl() {
     fetchDailyStats();
   }, [date]);
 
-  const fetchDailyStats = async () => {
-    const res = await fetch(`/api/stats/daily?date=${date}`);
-    const json = await res.json();
-    setData(json);
+  const fetchDailyStats = () => {
+    const stats = storage.getDailyStats(date);
+    setData(stats);
   };
 
   const exportExcel = () => {

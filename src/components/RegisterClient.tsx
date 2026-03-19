@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { motion } from 'motion/react';
 import { Save, RefreshCw, Upload, Download } from 'lucide-react';
@@ -6,6 +6,7 @@ import { clsx } from 'clsx';
 import { format, addMonths, addDays } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
+import { storage } from '@/lib/storage';
 
 export default function RegisterClient() {
   const { user } = useAuthStore();
@@ -72,13 +73,11 @@ export default function RegisterClient() {
     
   }, [form.membership_type, form.classification, form.start_date]);
 
-  const generateCode = async () => {
+  const generateCode = () => {
     try {
-        const res = await fetch('/api/clients/next-code');
-        if (!res.ok) throw new Error('Error fetching code');
-        const data = await res.json();
-        if (data.code) {
-            setForm(prev => ({ ...prev, code: data.code }));
+        const code = storage.getNextClientCode();
+        if (code) {
+            setForm(prev => ({ ...prev, code }));
             setMessage(null);
         } else {
             setMessage({ type: 'error', text: 'No se pudo generar el código' });
@@ -133,19 +132,13 @@ export default function RegisterClient() {
               created_by_name: user?.name || 'Unknown'
           };
 
-          const res = await fetch('/api/clients', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-          
-          const data = await res.json();
+          const res = storage.createClient(payload);
 
-          if (data.success) {
+          if (res.success) {
             setMessage({ type: 'success', text: 'Cliente registrado exitosamente' });
             setForm({ ...initialForm, start_date: form.start_date });
           } else {
-            setMessage({ type: 'error', text: data.message || 'Error al registrar' });
+            setMessage({ type: 'error', text: res.message || 'Error al registrar' });
           }
         } catch (err) {
           console.error(err);
@@ -241,7 +234,7 @@ export default function RegisterClient() {
           let successCount = 0;
           let skippedCount = 0;
 
-          for (const row: any of data) {
+          for (const row of data as any[]) {
               try {
                   const code = row['Codigo Cliente']?.toString().trim();
                   const fullName = row['Nombre Completo']?.toString().trim();
@@ -304,16 +297,12 @@ export default function RegisterClient() {
                       is_imported: true
                   };
                   
-                  const res = await fetch('/api/clients', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(client),
-                  });
+                  const res = storage.createClient(client);
                   
-                  if (res.ok) {
+                  if (res.success) {
                     successCount++;
                   } else {
-                    console.error('Error importing row:', await res.json());
+                    console.error('Error importing row:', res.message);
                     skippedCount++;
                   }
               } catch (err) {

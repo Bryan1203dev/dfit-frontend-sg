@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { motion } from 'motion/react';
 import { Lock, User, Sun, Moon } from 'lucide-react';
+import { storage } from '@/lib/storage';
 
 export default function Login() {
   const [pin, setPin] = useState('');
@@ -16,15 +17,10 @@ export default function Login() {
     setError('');
     
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
-      });
+      storage.init();
+      const data = storage.login(pin);
       
-      const data = await res.json();
-      
-      if (data.success) {
+      if (data.success && data.user) {
         if (data.user.name !== selectedRole) {
             setError('El PIN no corresponde al rol seleccionado');
             return;

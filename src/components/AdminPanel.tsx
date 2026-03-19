@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 import { formatPeruDate } from '@/lib/time';
 import { addDays, format, addMonths } from 'date-fns';
 import { clsx } from 'clsx';
+import { storage } from '@/lib/storage';
 
 export default function AdminPanel() {
   const { user } = useAuthStore();
@@ -72,10 +73,9 @@ export default function AdminPanel() {
     }
   }, [renewalForm.membership_type, renewalForm.classification, renewalForm.start_date]);
 
-  const fetchClients = async () => {
+  const fetchClients = () => {
     try {
-      const res = await fetch('/api/clients');
-      const data = await res.json();
+      const data = storage.getClients();
       setClients(data);
     } catch (error) {
       console.error('Error fetching clients:', error);
@@ -91,9 +91,9 @@ export default function AdminPanel() {
     setConfirmDialog({
       title: 'Eliminar Cliente',
       message: '¿Está seguro de eliminar este cliente? Esta acción no se puede deshacer.',
-      action: async () => {
+      action: () => {
         try {
-          await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+          storage.deleteClient(id);
           if (activeClient?.id === id) setActiveClient(null);
           fetchClients();
         } catch (error) {
@@ -110,9 +110,9 @@ export default function AdminPanel() {
       title: 'Eliminación Masiva',
       message: '¿Está seguro de eliminar TODOS los clientes del sistema? Esta acción borrará todos los registros de asistencias, pagos y clientes. NO se puede deshacer.',
       requirePin: 'masiva',
-      action: async () => {
+      action: () => {
         try {
-          await fetch('/api/clients/mass', { method: 'DELETE' });
+          storage.massDeleteClients();
           setActiveClient(null);
           fetchClients();
         } catch (error) {
@@ -126,16 +126,12 @@ export default function AdminPanel() {
     setConfirmDialog({
       title: 'Registrar Asistencia',
       message: `¿Desea registrar la asistencia de ${client.full_name}?`,
-      action: async () => {
+      action: () => {
         try {
-          await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: crypto.randomUUID(),
-              client_id: client.id,
-              date: new Date().toISOString()
-            })
+          storage.createAttendance({
+            id: crypto.randomUUID(),
+            client_id: client.id,
+            date: new Date().toISOString()
           });
           fetchClients();
         } catch (error) {
@@ -177,20 +173,16 @@ export default function AdminPanel() {
     setConfirmDialog({
       title: 'Confirmar Renovación',
       message: `¿Está seguro de renovar la membresía de ${selectedClient.full_name}?`,
-      action: async () => {
+      action: () => {
         try {
           const updates = {
             ...renewalForm,
             action_user: user?.name || 'System'
           };
 
-          const res = await fetch(`/api/clients/${selectedClient.id}/renew`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates)
-          });
+          const res = storage.renewClient(selectedClient.id, updates);
 
-          if (res.ok) {
+          if (res.success) {
             setIsRenewalOpen(false);
             fetchClients();
             setConfirmDialog({
@@ -200,8 +192,7 @@ export default function AdminPanel() {
               isAlert: true
             });
           } else {
-            const err = await res.json();
-            alert(err.message || 'Error al renovar');
+            alert(res.message || 'Error al renovar');
           }
         } catch (error) {
           console.error(error);
@@ -223,7 +214,7 @@ export default function AdminPanel() {
     setConfirmDialog({
       title: 'Confirmar Edición',
       message: '¿Está seguro de guardar los cambios realizados?',
-      action: async () => {
+      action: () => {
         const updates = {
           full_name: editForm.full_name,
           phone: editForm.phone,
@@ -239,24 +230,16 @@ export default function AdminPanel() {
         // Mass Attendance
         if (editForm.mass_attendance && editForm.mass_attendance > 0) {
             for (let i = 0; i < editForm.mass_attendance; i++) {
-                await fetch('/api/attendance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: crypto.randomUUID(),
-                        client_id: selectedClient.id,
-                        date: new Date().toISOString() // All marked as today
-                    })
+                storage.createAttendance({
+                    id: crypto.randomUUID(),
+                    client_id: selectedClient.id,
+                    date: new Date().toISOString() // All marked as today
                 });
             }
         }
 
         try {
-          await fetch(`/api/clients/${selectedClient.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates)
-          });
+          storage.updateClient(selectedClient.id, updates);
           setIsEditOpen(false);
           fetchClients();
         } catch (error) {

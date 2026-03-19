@@ -4,6 +4,7 @@ import { Search, DollarSign, CreditCard, Download, Calendar, X } from 'lucide-re
 import { Client, Payment } from '@/types';
 import { formatPeruDate } from '@/lib/time';
 import * as XLSX from 'xlsx';
+import { storage } from '@/lib/storage';
 
 export default function Payments() {
   const { user } = useAuthStore();
@@ -22,14 +23,12 @@ export default function Payments() {
   }, []);
 
   const fetchClients = async () => {
-    const res = await fetch('/api/clients');
-    const data = await res.json();
+    const data = storage.getClients();
     setClients(data);
   };
 
   const fetchHistory = async () => {
-    const res = await fetch('/api/payments');
-    const data = await res.json();
+    const data = storage.getPayments();
     setHistory(data);
   };
 
@@ -90,19 +89,15 @@ export default function Payments() {
       message: `¿Confirmar pago de S/ ${amount} para ${selectedClient.full_name}?`,
       action: async () => {
         try {
-          await fetch('/api/payments', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: crypto.randomUUID(),
-              client_id: selectedClient.id,
-              amount: amount,
-              method: method,
-              date: new Date().toISOString(),
-              user_id: user?.id,
-              user_name: user?.name,
-              type: 'Debt'
-            })
+          storage.createPayment({
+            id: crypto.randomUUID(),
+            client_id: selectedClient.id,
+            amount: amount,
+            method: method,
+            date: new Date().toISOString(),
+            user_id: user?.id,
+            user_name: user?.name,
+            type: 'Debt'
           });
           alert('Pago registrado');
           setAmount('');

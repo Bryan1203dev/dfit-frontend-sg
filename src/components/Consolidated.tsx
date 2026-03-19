@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line, CartesianGrid } from 'recharts';
 import { Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { storage } from '@/lib/storage';
 
 export default function Consolidated() {
   const [clients, setClients] = useState<any[]>([]);
   const [filter, setFilter] = useState('all'); // all, day, week, month, year
   
   useEffect(() => {
-    fetch(`/api/stats/consolidated?filter=${filter}`).then(res => res.json()).then(data => {
-        setClients(data);
-    });
+    const data = storage.getConsolidatedStats(filter);
+    setClients(data);
   }, [filter]);
 
   // Process Data

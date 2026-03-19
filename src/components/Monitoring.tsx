@@ -4,6 +4,7 @@ import { Client, Attendance, Payment } from '@/types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { formatPeruDate } from '@/lib/time';
 import { useAuthStore } from '@/store/auth';
+import { storage } from '@/lib/storage';
 
 export default function Monitoring() {
   const { user } = useAuthStore();
@@ -21,28 +22,24 @@ export default function Monitoring() {
   }, []);
 
   const fetchActionHistory = async () => {
-    const res = await fetch('/api/action-history');
-    const data = await res.json();
+    const data = storage.getActionHistory();
     setActionHistory(data);
   };
 
   const fetchClients = async () => {
-    const res = await fetch('/api/clients');
-    const data = await res.json();
+    const data = storage.getClients();
     setClients(data);
   };
   
   const fetchPayments = async () => {
-      const res = await fetch('/api/payments');
-      const data = await res.json();
+      const data = storage.getPayments();
       setPayments(data);
   }
 
   const fetchClientData = async (client: Client) => {
     setSelectedClient(client);
     // Fetch attendance
-    const resAtt = await fetch(`/api/attendance/${client.id}`);
-    const dataAtt = await resAtt.json();
+    const dataAtt = storage.getAttendance(client.id);
     setAttendance(dataAtt);
   };
 
