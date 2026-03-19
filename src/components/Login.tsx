@@ -35,17 +35,20 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[url('/assets/banner_master.png')] bg-cover bg-center bg-no-repeat relative text-white p-4">
+      {/* Blur Overlay */}
+      <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm z-0"></div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="group w-full max-w-sm bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-300 hover:border-amber-300 hover:shadow-[0_0_30px_rgba(252,211,77,0.3)]"
+        className="group relative z-10 w-full max-w-sm bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_40px_rgba(251,191,36,0.5)]"
       >
         <div className="p-8 text-center">
-          <div className="w-30 h-30 bg-amber-300 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-amber-300/20">
-            <Lock className="w-12 h-12 text-zinc-900" />
+          <div className="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-amber-400/30 overflow-hidden transform group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(251,191,36,0.8)] transition-all duration-300 border-2 border-amber-400/50 group-hover:border-amber-400">
+            <img src="/assets/DFIT_LOGO.jpeg" alt="DFIT Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-3xl font-bold mb-2 text-white group-hover:text-amber-300 transition-colors duration-300">DFIT</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white group-hover:text-amber-400 transition-colors duration-300">DFIT</h1>
           <p className="text-zinc-400 mb-8">Sistema de Gestión Integral</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -78,7 +81,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full h-14 rounded-xl bg-gradient-to-r from-amber-300 to-amber-100 hover:from-amber-200 hover:to-amber-50 text-zinc-900 transition-all duration-300 font-bold text-lg shadow-lg shadow-amber-300/20 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(252,211,77,0.6)] flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-xl bg-gradient-to-r from-amber-500 to-amber-300 hover:from-amber-400 hover:to-amber-200 text-zinc-900 transition-all duration-300 font-bold text-lg shadow-lg shadow-amber-500/30 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(245,158,11,0.6)] flex items-center justify-center gap-2"
             >
               <User className="w-5 h-5" />
               Iniciar Sesión
@@ -87,7 +90,7 @@ export default function Login() {
         </div>
       </motion.div>
       
-      <div className="mt-8 text-center text-xs text-amber-300/40 hover:text-amber-300 transition-all duration-300 cursor-default">
+      <div className="relative z-10 mt-8 text-center text-xs text-amber-300/50 hover:text-amber-400 transition-all duration-300 cursor-default">
         RyanCore System v-1.02 ® {new Date().getFullYear()}
       </div>
     </div>

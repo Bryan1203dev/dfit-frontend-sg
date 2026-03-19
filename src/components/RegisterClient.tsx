@@ -356,8 +356,11 @@ export default function RegisterClient() {
         {/* Custom Confirm Dialog */}
         {confirmDialog && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 rounded-2xl backdrop-blur-sm">
-            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 border border-zinc-200 dark:border-zinc-700">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{confirmDialog.title}</h3>
+            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 border border-zinc-200 dark:border-zinc-700 text-center">
+              <div className="w-16 h-16 rounded-full mx-auto mb-4 border-2 border-amber-500 overflow-hidden shadow-lg shadow-amber-500/20">
+                <img src="/assets/DFIT_LOGO.jpeg" alt="DFIT Logo" className="w-full h-full object-cover" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">{confirmDialog.title}</h3>
               <p className="text-zinc-600 dark:text-zinc-300 mb-6">{confirmDialog.message}</p>
               <div className="flex justify-end gap-3">
                 <button
