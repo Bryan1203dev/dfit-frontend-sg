@@ -35,17 +35,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-900 text-white p-4">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center text-white p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: 'url("/assets/banner_master.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* Capa de desenfoque y oscuridad para contraste */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] z-0" />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="group w-full max-w-sm bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-300 hover:border-amber-200 hover:shadow-[0_0_30px_rgba(253,230,138,0.3)]"
+        className="group relative z-10 w-full max-w-sm bg-zinc-800 rounded-2xl shadow-2xl overflow-hidden border border-zinc-700 transition-all duration-500 hover:border-yellow-400 hover:shadow-[0_0_50px_rgba(255,215,0,0.8)]"
       >
         <div className="p-8 text-center">
-          <div className="w-30 h-30 bg-amber-200 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-amber-200/20">
-            <Lock className="w-12 h-12 text-zinc-900" />
+          <div className="w-28 h-28 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-yellow-400/20 group-hover:shadow-[0_0_30px_rgba(255,215,0,0.6)] transition-all duration-500 overflow-hidden bg-zinc-950 border-2 border-transparent group-hover:border-yellow-400">
+            <img
+              src="/assets/DFIT_LOGO.jpeg"
+              alt="DFIT Logo"
+              className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500"
+            />
           </div>
-          <h1 className="text-3xl font-bold mb-2 text-white group-hover:text-amber-200 transition-colors duration-300">DFIT</h1>
+          <h1 className="text-3xl font-bold mb-2 text-white group-hover:text-yellow-400 transition-colors duration-300">DFIT</h1>
           <p className="text-zinc-400 mb-8">Sistema de Gestión Integral</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -78,7 +92,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full h-14 rounded-xl bg-gradient-to-r from-amber-200 to-amber-50 hover:from-amber-100 hover:to-white text-zinc-900 transition-all duration-300 font-bold text-lg shadow-lg shadow-amber-200/20 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(253,230,138,0.6)] flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-300 hover:from-yellow-400 hover:to-yellow-200 text-zinc-900 transition-all duration-300 font-bold text-lg shadow-lg shadow-yellow-400/20 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(255,215,0,0.6)] flex items-center justify-center gap-2"
             >
               <User className="w-5 h-5" />
               Iniciar Sesión
@@ -87,7 +101,7 @@ export default function Login() {
         </div>
       </motion.div>
 
-      <div className="mt-8 text-center text-xs text-amber-200/40 hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] transition-all duration-300 cursor-default">
+      <div className="relative z-10 mt-8 text-center text-xs text-yellow-100/40 hover:text-yellow-300 hover:drop-shadow-[0_0_10px_rgba(255,215,0,0.8)] transition-all duration-300 cursor-default">
         RyanCore System V-1.02 ® {new Date().getFullYear()}
       </div>
     </div>
