@@ -12,6 +12,8 @@ import { storage } from '@/lib/storage';
 import { Attendance } from '@/types';
 import jsPDF from 'jspdf';
 import * as htmlToImage from 'html-to-image';
+import Modal from './Modal';
+
 
 export default function AdminPanel() {
   const { user } = useAuthStore();
@@ -132,8 +134,9 @@ export default function AdminPanel() {
           if (activeClient?.id === id) setActiveClient(null);
           fetchClients();
         } catch (error) {
-          alert('Error al eliminar');
+          setConfirmDialog({ title: 'Error', message: 'Error al eliminar', action: () => {}, isAlert: true, type: 'danger' });
         }
+
       }
     });
   };
@@ -151,8 +154,9 @@ export default function AdminPanel() {
           setActiveClient(null);
           fetchClients();
         } catch (error) {
-          alert('Error al eliminar masivamente');
+          setConfirmDialog({ title: 'Error', message: 'Error al eliminar masivamente', action: () => {}, isAlert: true, type: 'danger' });
         }
+
       }
     });
   };
@@ -170,8 +174,9 @@ export default function AdminPanel() {
           });
           fetchClients();
         } catch (error) {
-          alert('Error al registrar asistencia');
+          setConfirmDialog({ title: 'Error', message: 'Error al registrar asistencia', action: () => {}, isAlert: true, type: 'danger' });
         }
+
       }
     });
   };
@@ -201,9 +206,10 @@ export default function AdminPanel() {
     if (!selectedClient) return;
     
     if (renewalForm.membership_type === 'Seleccionar' || renewalForm.classification === 'Seleccionar') {
-      alert('Seleccione un tipo de membresía y clasificación válidos.');
+      setConfirmDialog({ title: 'Aviso', message: 'Seleccione un tipo de membresía y clasificación válidos.', action: () => {}, isAlert: true, type: 'warning' });
       return;
     }
+
 
     setConfirmDialog({
       title: 'Confirmar Renovación',
@@ -227,12 +233,13 @@ export default function AdminPanel() {
               isAlert: true
             });
           } else {
-            alert(res.message || 'Error al renovar');
+            setConfirmDialog({ title: 'Error', message: res.message || 'Error al renovar', action: () => {}, isAlert: true, type: 'danger' });
           }
         } catch (error) {
           console.error(error);
-          alert('Error al procesar la renovación');
+          setConfirmDialog({ title: 'Error', message: 'Error al procesar la renovación', action: () => {}, isAlert: true, type: 'danger' });
         }
+
       }
     });
   };
@@ -278,8 +285,9 @@ export default function AdminPanel() {
           setIsEditOpen(false);
           fetchClients();
         } catch (error) {
-          alert('Error al actualizar');
+          setConfirmDialog({ title: 'Error', message: 'Error al actualizar', action: () => {}, isAlert: true, type: 'danger' });
         }
+
       }
     });
   };
@@ -746,59 +754,27 @@ export default function AdminPanel() {
         </div>
       )}
 
-      {/* Custom Confirm Dialog */}
-      {confirmDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 rounded-2xl backdrop-blur-sm p-4">
-          <div className={`bg-white dark:bg-zinc-800 p-6 rounded-xl max-w-sm w-full mx-4 border ${
-            confirmDialog.type === 'danger' ? 'border-2 border-red-600 shadow-[0_0_30px_rgba(220,38,38,0.5)]' :
-            confirmDialog.type === 'warning' ? 'border-2 border-amber-600 shadow-[0_0_30px_rgba(217,119,6,0.5)]' :
-            'border-zinc-200 dark:border-zinc-700 shadow-2xl'
-          }`}>
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{confirmDialog.title}</h3>
-            <p className="text-zinc-600 dark:text-zinc-300 mb-6 whitespace-pre-wrap">{confirmDialog.message}</p>
-            
-            {confirmDialog.requirePin && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2 opacity-70">Ingrese PIN de confirmación:</label>
-                <input 
-                  type="password"
-                  value={dialogPinInput}
-                  onChange={e => setDialogPinInput(e.target.value)}
-                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-500 outline-none"
-                  placeholder="PIN"
-                />
-              </div>
-            )}
+      <Modal
+        isOpen={!!confirmDialog}
+        onClose={() => setConfirmDialog(null)}
+        onConfirm={() => {
+          if (confirmDialog?.requirePin && dialogPinInput !== confirmDialog.requirePin) {
+            alert('PIN incorrecto'); // Keeping this as simple alert or I could also change it to modal
+            return;
+          }
+          const action = confirmDialog?.action;
+          setConfirmDialog(null);
+          setTimeout(() => action?.(), 100);
+        }}
+        title={confirmDialog?.title || ''}
+        message={confirmDialog?.message || ''}
+        type={confirmDialog?.type === 'danger' ? 'danger' : (confirmDialog?.type === 'warning' ? 'warning' : 'default')}
+        showPinInput={!!confirmDialog?.requirePin}
+        pinValue={dialogPinInput}
+        onPinChange={setDialogPinInput}
+        isAlert={confirmDialog?.isAlert}
+      />
 
-            <div className="flex justify-end gap-3">
-              {!confirmDialog.isAlert && (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDialog(null)}
-                  className="px-4 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                >
-                  Cancelar
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirmDialog.requirePin && dialogPinInput !== confirmDialog.requirePin) {
-                    alert('PIN incorrecto');
-                    return;
-                  }
-                  const action = confirmDialog.action;
-                  setConfirmDialog(null);
-                  setTimeout(() => action(), 100);
-                }}
-                className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-              >
-                {confirmDialog.isAlert ? 'Aceptar' : 'Confirmar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Edit Modal */}
       <AnimatePresence>

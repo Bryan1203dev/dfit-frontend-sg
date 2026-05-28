@@ -5,6 +5,8 @@ import { Client, Payment } from '@/types';
 import { formatPeruDate } from '@/lib/time';
 import * as XLSX from 'xlsx';
 import { storage } from '@/lib/storage';
+import Modal from './Modal';
+
 
 export default function Payments() {
   const { user } = useAuthStore();
@@ -17,6 +19,8 @@ export default function Payments() {
   const [method, setMethod] = useState('Efectivo');
   const [history, setHistory] = useState<Payment[]>([]);
   const [confirmDialog, setConfirmDialog] = useState<{ title: string, message: string, action: () => void } | null>(null);
+  const [message, setMessage] = useState<{type: 'success'|'error', text: string} | null>(null);
+
 
   useEffect(() => {
     fetchClients();
@@ -80,9 +84,10 @@ export default function Payments() {
     
     const debt = selectedClient.price - (selectedClient.amount_paid || 0);
     if (amount > debt) {
-        alert('El monto no puede ser mayor a la deuda');
+        setMessage({ type: 'error', text: 'El monto no puede ser mayor a la deuda' });
         return;
     }
+
 
     setConfirmDialog({
       title: 'Confirmar Pago',
@@ -99,14 +104,15 @@ export default function Payments() {
             user_name: user?.name,
             type: 'Debt'
           });
-          alert('Pago registrado');
+          setMessage({ type: 'success', text: 'Pago registrado exitosamente' });
           setAmount('');
           fetchClients();
           fetchHistory();
           setSelectedClient(null);
         } catch (error) {
-          alert('Error al registrar pago');
+          setMessage({ type: 'error', text: 'Error al registrar pago' });
         }
+
       }
     });
   };
@@ -311,35 +317,26 @@ export default function Payments() {
         )}
       </div>
 
-      {/* Custom Confirm Dialog */}
-      {confirmDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 rounded-2xl backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 border border-zinc-200 dark:border-zinc-700">
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{confirmDialog.title}</h3>
-            <p className="text-zinc-600 dark:text-zinc-300 mb-6">{confirmDialog.message}</p>
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setConfirmDialog(null)}
-                className="px-4 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const action = confirmDialog.action;
-                  setConfirmDialog(null);
-                  setTimeout(() => action(), 100);
-                }}
-                className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={!!confirmDialog}
+        onClose={() => setConfirmDialog(null)}
+        onConfirm={() => {
+          confirmDialog?.action();
+          setConfirmDialog(null);
+        }}
+        title={confirmDialog?.title || ''}
+        message={confirmDialog?.message || ''}
+      />
+
+      <Modal
+        isOpen={!!message}
+        onClose={() => setMessage(null)}
+        title={message?.type === 'success' ? 'Éxito' : 'Pago Registrado'}
+        message={message?.text || ''}
+        isAlert
+        type={message?.type === 'success' ? 'default' : 'danger'}
+      />
     </div>
   );
 }
+

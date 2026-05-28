@@ -114,10 +114,15 @@ export default function Layout({ children, activeModule, setActiveModule }: Layo
             >
               <div className="p-6 flex items-center justify-between border-b border-zinc-800/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <Dumbbell className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 rounded-full border border-amber-500/20 flex items-center justify-center shadow-lg shadow-amber-500/10 overflow-hidden bg-white">
+                    <img 
+                      src="/assets/DFIT_LOGO.jpeg" 
+                      alt="DFIT Logo" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
+
                     <h1 className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white">DFIT</h1>
                     <p className="text-xs opacity-60 text-zinc-600 dark:text-zinc-400">Gym Manager</p>
                   </div>

@@ -8,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
 import { storage } from '@/lib/storage';
 import { getCurrentPeruISODate } from '@/lib/time';
+import Modal from './Modal';
+
 
 export default function RegisterClient() {
   const { user } = useAuthStore();
@@ -354,40 +356,26 @@ export default function RegisterClient() {
         onSubmit={handleSubmit}
         className="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-lg border border-zinc-200 dark:border-zinc-800 relative"
       >
-        {/* Custom Confirm Dialog */}
-        {confirmDialog && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 rounded-2xl backdrop-blur-sm">
-            <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4 border border-zinc-200 dark:border-zinc-700">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{confirmDialog.title}</h3>
-              <p className="text-zinc-600 dark:text-zinc-300 mb-6">{confirmDialog.message}</p>
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setConfirmDialog(null)}
-                  className="px-4 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    confirmDialog.action();
-                    setConfirmDialog(null);
-                  }}
-                  className="px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-                >
-                  Confirmar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <Modal
+        isOpen={!!confirmDialog}
+        onClose={() => setConfirmDialog(null)}
+        onConfirm={() => {
+          confirmDialog?.action();
+          setConfirmDialog(null);
+        }}
+        title={confirmDialog?.title || ''}
+        message={confirmDialog?.message || ''}
+      />
 
-        {message && (
-          <div className={clsx("p-4 mb-6 rounded-lg", message.type === 'success' ? "bg-green-500/10 text-green-600 dark:text-green-500" : "bg-red-500/10 text-red-600 dark:text-red-500")}>
-            {message.text}
-          </div>
-        )}
+      <Modal
+        isOpen={!!message}
+        onClose={() => setMessage(null)}
+        title={message?.type === 'success' ? 'Éxito' : 'Error'}
+        message={message?.text || ''}
+        isAlert
+        type={message?.type === 'success' ? 'default' : 'danger'}
+      />
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Code */}
