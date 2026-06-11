@@ -2,19 +2,20 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# DFIT SYSTEM MANAGER
 
-This contains everything you need to run your app locally.
+## 📌 Descripción:
+Sistema de gestión administrativo y operativo de la BBDD de clientes de DFIT.
 
-View your app in AI Studio: https://ai.studio/apps/2e364d92-253d-4ba0-bfd4-90fa451b6dc3
+## 🛠️ Tecnologías y Herramientas
+* **Frontend:** React (JavaScript, HTML5, CSS3)
+* **Cloud & Backend (Serverless):** AWS Amplify, Amazon API Gateway, Amazon DynamoDB, Amazon S3
+* **Seguridad & Monitoreo:** AWS IAM, Amazon CloudWatch
+* **Automatización:** CI/CD integrado mediante AWS Amplify
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📐 Arquitectura Cloud Implementada
+1. El frontend en **React** se aloja y distribuye globalmente mediante **AWS Amplify**.
+2. Las peticiones del usuario se gestionan de forma segura a través de **API Gateway**.
+3. Los datos persistentes se almacenan en tablas optimizadas de **DynamoDB**.
+4. Los archivos estáticos o multimedia del cliente se guardan de forma segura en **Amazon S3**.
+5. Todo el entorno cuenta con monitoreo activo de errores mediante **CloudWatch** y roles restringidos en **IAM**.
